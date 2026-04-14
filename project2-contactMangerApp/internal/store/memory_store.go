@@ -10,7 +10,7 @@ type MemoryStore struct {
 }
 
 // constructor
-func newMemoryStore() *MemoryStore {
+func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		contacts: []models.Contact{},
 	}

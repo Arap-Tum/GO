@@ -1,6 +1,7 @@
 package main
 
 import (
+	"contactManagerApp/internal/router"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -60,7 +61,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/hello", helloHandler)
-	// router.SetupRoutes()
+	router.SetupRoutes()
 
 	fmt.Println("Starting server on :8080.....")
 

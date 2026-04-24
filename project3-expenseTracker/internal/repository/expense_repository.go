@@ -51,7 +51,7 @@ func (r *ExpenseRepository) GetAll(ctx context.Context) ([]models.Expense, error
 	query := `
 	SELECT id, user_id, category_id, title, amount, created_at
 	 FROM expenses 
-	 ORDER BY Created_at DESC
+	 ORDER BY created_at DESC
 	
 	`
 
@@ -105,7 +105,6 @@ func (r *ExpenseRepository) GetByID(ctx context.Context, id int) (*models.Expens
 		&exp.ID,
 		&exp.UserID,
 		&exp.CategoryID,
-		&exp.Title,
 		&exp.Title,
 		&exp.Amount,
 		&exp.CreatedAt,

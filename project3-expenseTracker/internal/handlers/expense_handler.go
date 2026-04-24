@@ -15,7 +15,7 @@ type ExpenseHandler struct {
 }
 
 // constructor
-func NewExpenseHandler(s *repository.ExpenseRepository) *ExpenseHandler {
+func NewExpenseHandler(r *repository.ExpenseRepository) *ExpenseHandler {
 	return &ExpenseHandler{repo: r}
 }
 
@@ -72,7 +72,7 @@ func (h *ExpenseHandler) GetExpenseById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	expense, err = h.repo.GetByID(r.Context(), id)
+	expense, err := h.repo.GetByID(r.Context(), id)
 	if err != nil {
 		if err == repository.ErrNotFound {
 			http.Error(w, "Expense not Found", http.StatusNotFound)
@@ -86,27 +86,26 @@ func (h *ExpenseHandler) GetExpenseById(w http.ResponseWriter, r *http.Request) 
 }
 
 // PUT expenses
-func (h *ExpenseHandler) UpdateExpense(w http.Response, r *http.Request) {
+func (h *ExpenseHandler) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	id := chi.URLParam(r, "id")
+	// id := chi.URLParam(r, "id")
 
 	var updated models.Expense
 
-	err := json.NewDecoder(r.Body).Decode(&updated)
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	updated.ID = id
+
+	err := h.repo.Update(r.Context(), &updated)
+
 	if err != nil {
-		http.Error(w, "Invalid request Body", http.StatusBadRequest)
-		return
+		if err == repository.ErrNotFound {
+			http.Error(w, "Expense to update", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	expense, found := h.repo.Update(id, &updated)
-
-	if !found {
-		http.Error(w, "Contact not found", http.StatusNotFound)
-		return
-	}
-
-	json.NewEncoder(w).Encode(expense)
+	json.NewEncoder(w).Encode(updated)
 }
 
 // DELETE Expense

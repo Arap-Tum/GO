@@ -2,31 +2,41 @@ package router
 
 import (
 	"expenseTracker/internal/handlers"
+	"net/http"
 
 	"github.com/go-chi/chi"
 )
 
-func SetupRoutes(ExpenseHandler *handlers.ExpenseHandler) *chi.Mux {
+func SetupRoutes(
+	expenseHandler *handlers.ExpenseHandler,
+	authHandler *handlers.AuthHandler,
+	healthHandler *handlers.HealthHandleR,
+) http.Handler {
 
 	r := chi.NewRouter()
 
-	// GLOBAL MIDDLEWARE
 	r.Use(LoggerMiddleware)
 
-	// Helth  check
-	r.get("/health", HealthHandler)
+	// HEALTH (top-level, no grouping needed)
+	r.Get("/health/live", healthHandler.Live)
+	r.Get("/health/ready", healthHandler.Ready)
 
-	// Expense rutes
+	// AUTH
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", authHandler.Login)
+		r.Post("/register", authHandler.Register)
+	})
 
+	// PROTECTED ROUTES
 	r.Route("/expenses", func(r chi.Router) {
-		r.Post("/", expenseHandler.CreateExpense)
-		r.Get("/", expenseHandler.GetExpenses)
-		r.Get("/{id}", expenseHandler.GetExpenseByID)
+		r.Use(AuthMiddleware) // 🔐 apply auth here
+
+		r.Post("/", expenseHandler.CreateExpenses)
+		r.Get("/", expenseHandler.GetExpense)
+		r.Get("/{id}", expenseHandler.GetExpenseById)
+		r.Put("/{id}", expenseHandler.UpdateExpense)
 		r.Delete("/{id}", expenseHandler.DeleteExpense)
 	})
 
-	r.Router("/auth", func(r chi.Router) {
-		r.Post("/login")
-	})
-
+	return r
 }

@@ -9,7 +9,7 @@ type HealthResponse struct {
 	Status string `json:"status"`
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	// SET header to JSON
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "inline")

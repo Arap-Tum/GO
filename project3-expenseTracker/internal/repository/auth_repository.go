@@ -1,13 +1,9 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
-	"errors"
 	"expenseTracker/internal/models"
 )
-
-var ErrNotFound = errors.New("resource not found")
 
 type AuthRepository struct {
 	DB *sql.DB
@@ -18,28 +14,41 @@ func NewAuthRepository(db *sql.DB) *AuthRepository {
 }
 
 // Register new user into the Database
-func (r *AuthRepository) Creat(ctx context.Context, exp *models.User) error {
+
+// Create User
+func (r *AuthRepository) CreateUser(user *models.User) error {
 	query := `
-		INSERT INTO user (name, email)
-		VALUES(?,?)
-	
+		INSERT INTO users (name, email, password)
+		VALUES ($1, $2, $3)
+		RETURNING id, created_at
 	`
 
-	result, err := r.DB.ExecContext(ctx, query,
-		exp.Name,
-		exp.Email,
-	)
+	return r.DB.QueryRow(query, user.Name, user.Email, user.Password).
+		Scan(&user.ID, &user.CreatedAt)
+}
+
+// Get user by email (for login)
+func (r *AuthRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+
+	query := `
+		SELECT id, name, email, password, created_at
+		FROM users
+		WHERE email = $1
+	`
+
+	err := r.DB.QueryRow(query, email).
+		Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
+	return &user, nil
+}
 
-	expe.ID = int(id)
-
-	return nil
+func (r *AuthRepository) UpdatePassword(userID int, hashedPassword string) error {
+	query := `UPDATE users SET password = $1 WHERE id = $2`
+	_, err := r.DB.Exec(query, hashedPassword, userID)
+	return err
 }

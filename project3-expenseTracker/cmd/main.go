@@ -26,7 +26,7 @@ func main() {
 
 	// repositories
 	expenseRepo := repository.NewExpenseRepository(db)
-	// authRepo := repository.NewAuthRepository(db) (if you have one)
+	authRepo := repository.NewAuthRepository(db)
 
 	// services
 	expenseService := service.NewExpenseService(expenseRepo)
@@ -46,7 +46,7 @@ func main() {
 
 	// Start server
 	log.Println("Server starting on :8080....")
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal("Error starting Server:", err)
 	}

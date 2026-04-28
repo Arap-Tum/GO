@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"expenseTracker/internal/models"
 	"expenseTracker/internal/repository"
-	"expenseTracker/utils"
+	"expenseTracker/internal/utils"
 	"net/http"
 )
 

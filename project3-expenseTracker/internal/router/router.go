@@ -5,7 +5,7 @@ import (
 	"expenseTracker/internal/middleware"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func SetupRoutes(
@@ -16,10 +16,10 @@ func SetupRoutes(
 
 	r := chi.NewRouter()
 
-	r.Use(LoggerMiddleware)
+	r.Use(middleware.JWTMiddleware)
 
 	// HEALTH (top-level, no grouping needed)
-	r.Get("/health/live", handlers.HealthHandler())
+	r.Get("/health", handlers.HealthHandler)
 
 	// AUTH
 	r.Route("/auth", func(r chi.Router) {

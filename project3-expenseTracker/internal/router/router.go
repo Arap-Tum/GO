@@ -31,9 +31,9 @@ func SetupRoutes(
 	r.Route("/expenses", func(r chi.Router) {
 		r.Use(middleware.JWTMiddleware) // 🔐 apply auth here
 
-		r.Post("/", expenseHandler.CreateExpenses)
-		r.Get("/", expenseHandler.GetExpense)
-		r.Get("/{id}", expenseHandler.GetExpenseById)
+		r.Post("/", expenseHandler.CreateExpense)
+		r.Get("/", expenseHandler.GetExpenses)
+		r.Get("/{id}", expenseHandler.GetExpenseByID)
 		r.Put("/{id}", expenseHandler.UpdateExpense)
 		r.Delete("/{id}", expenseHandler.DeleteExpense)
 	})

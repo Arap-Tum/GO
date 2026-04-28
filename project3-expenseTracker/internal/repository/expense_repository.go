@@ -47,15 +47,23 @@ func (r *ExpenseRepository) Create(ctx context.Context, exp *models.Expense) err
 
 // GET ALL
 
-func (r *ExpenseRepository) GetAll(ctx context.Context) ([]models.Expense, error) {
+func (r *ExpenseRepository) GetAllByUser(
+	ctx context.Context,
+	userID int,
+) ([]models.Expense, error) {
+
 	query := `
-	SELECT id, user_id, category_id, title, amount, created_at
-	 FROM expenses 
-	 ORDER BY created_at DESC
-	
+	SELECT id,user_id,category_id,title,amount,created_at
+	FROM expenses
+	WHERE user_id = ?
+	ORDER BY created_at DESC
 	`
 
-	rows, err := r.DB.QueryContext(ctx, query)
+	rows, err := r.DB.QueryContext(
+		ctx,
+		query,
+		userID,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +104,7 @@ func (r *ExpenseRepository) GetByID(ctx context.Context, id int) (*models.Expens
 	query := `
 		SELECT id, user_id, category_id, title, amount, created_at
 		FROM expenses
-		WHERE id = ?
+		WHERE id = ? AND user_id = ?
 	`
 
 	var exp models.Expense
@@ -124,8 +132,8 @@ func (r *ExpenseRepository) GetByID(ctx context.Context, id int) (*models.Expens
 func (r *ExpenseRepository) Update(ctx context.Context, exp *models.Expense) error {
 	query := `
 		UPDATE expenses
-		SET category_id =?, title = ?, amount =?
-		WHERE id= ?
+SET category_id=?,title=?,amount=?
+WHERE id=? AND user_id=?
 	
 	`
 	result, err := r.DB.ExecContext(ctx, query,
@@ -153,7 +161,8 @@ func (r *ExpenseRepository) Update(ctx context.Context, exp *models.Expense) err
 
 // DELETE
 func (r *ExpenseRepository) DeleteExpense(ctx context.Context, id int) error {
-	query := `DELETE FROM expenses WHERE id  = ?`
+	query := `DELETE FROM expenses
+WHERE id=? AND user_id=?`
 
 	result, err := r.DB.ExecContext(ctx, query, id)
 	if err != nil {
